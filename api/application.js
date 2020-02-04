@@ -9,7 +9,7 @@ let mess='';
 //console.dir({ pg });
 
 pg.select('pg_tables')
-  .where({ tableowner: 'marcus', schemaname: 'public' })
+  .where({ tableowner: '=marcus', schemaname: '=public' })
   .fields(['schemaname', 'tablename', 'tableowner', 'hasindexes'])
   .order('tablename')
   .then(rows => {

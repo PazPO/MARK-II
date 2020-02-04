@@ -22,7 +22,7 @@ webSocketServer.on('connection', function (ws) {
 
     for (var key in clients) {
       pg.select('pg_tables')
-        .where({ tableowner: 'marcus', schemaname: 'public' })
+        .where({ tableowner: '=marcus', schemaname: '=public' })
         .fields(['schemaname', 'tablename', 'tableowner', 'hasindexes'])
         .order('tablename')
         .then(rows => {

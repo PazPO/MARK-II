@@ -9,36 +9,13 @@ const where = conditions => {
   for (const key in conditions) {
     let value = conditions[key];
     let condition;
-    if (typeof value === 'number') {
-      condition = `${key} = $${i}`;
-    } else if (typeof value === 'string') {
-      if (value.startsWith('>=')) {
-        condition = `${key} >= $${i}`;
-        value = value.substring(2);
-      } else if (value.startsWith('<=')) {
-        condition = `${key} <= $${i}`;
-        value = value.substring(2);
-      } else if (value.startsWith('<>')) {
-        condition = `${key} <> $${i}`;
-        value = value.substring(2);
-      } else if (value.startsWith('>')) {
-        condition = `${key} > $${i}`;
-        value = value.substring(1);
-      } else if (value.startsWith('<')) {
-        condition = `${key} < $${i}`;
-        value = value.substring(1);
-      } else if (value.includes('*') || value.includes('?')) {
-        value = value.replace(/\*/g, '%').replace(/\?/g, '_');
-        condition = `${key} LIKE $${i}`;
-      } else {
-        condition = `${key} = $${i}`;
-      }
-    }
-    i++;
-    args.push(value);
-    clause = clause ? `${clause} AND ${condition}` : condition;
-  }
-  return { clause, args };
+    let z = value.slice(0,1);
+    condition = `${key} ${z} $${i}`;
+  i++;
+  args.push(value.slice(1));
+  clause = clause ? `${clause} AND ${condition}` : condition;
+}
+return { clause, args };
 };
 
 const MODE_ROWS = 0;
@@ -65,7 +42,7 @@ class Cursor {
   resolve(result) {
     const { rows, fields, rowCount } = result;
     this.rows = rows;
-    this.cols = fields; 
+    this.cols = fields;
     this.rowCount = rowCount;
   }
 
@@ -115,7 +92,7 @@ class Cursor {
     let sql = `SELECT ${fields} FROM ${table}`;
     if (whereClause) sql += ` WHERE ${whereClause}`;
     if (orderBy) sql += ` ORDER BY ${orderBy}`;
-    this.database.query(sql, args,  (err, res) => {
+    this.database.query(sql, args, (err, res) => {
       this.resolve(res);
       const { rows, cols } = this;
       if (mode === MODE_VALUE) {
